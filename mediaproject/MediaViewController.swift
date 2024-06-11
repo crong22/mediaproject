@@ -17,7 +17,7 @@ class MediaViewController: UIViewController {
     
     let movieButton = UIButton()
     let findButton = UIButton()
-    var page = 1
+
     var list = Media(page: 1, results: [])
     var isEnd = false
 
@@ -115,7 +115,7 @@ class MediaViewController: UIViewController {
                 if self.list.page == 1 {
                     self.list = value
                     print("리스트만듬")
-                    print(self.list)
+                    print(self.list.results.count)
                 }else {
                     self.list.results.append(contentsOf: value.results)
                 }
@@ -130,7 +130,7 @@ class MediaViewController: UIViewController {
     extension MediaViewController : UITableViewDelegate, UITableViewDataSource {
         
         func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return 20
+            return list.results.count
         }
         
         // 1) API Call
@@ -140,10 +140,14 @@ class MediaViewController: UIViewController {
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             print("############")
             let cell = tableView.dequeueReusableCell(withIdentifier: MediaInfoTableViewCell.identifire , for:  indexPath) as! MediaInfoTableViewCell
-            //let data = list.results[indexPath.row]
-            //print("waojfaopjfpoafjpoajfpojaofjapofjoawjpfajwfajfpjjfpoajwpfaj\(list)")
-//            let imageURL = URL(string: "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data?.poster_path)
-//            cell.movieImage.kf.setImage(with: imageURL)
+            let data = list.results[indexPath.row]
+            let imageURL = URL(string: "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data.poster_path)
+            cell.movieImage.kf.setImage(with: imageURL)
+            cell.titleLabel.text = data.title
+            cell.movieDateLabel.text = data.release_date
+            let oneformat = String(format: "%.1f", data.vote_average)
+            cell.rateLabel.text = "\(oneformat)"
+            cell.storyLabel.text = data.overview
             return cell
         }
     }
