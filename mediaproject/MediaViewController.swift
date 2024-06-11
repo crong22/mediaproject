@@ -125,6 +125,10 @@ class MediaViewController: UIViewController {
             return 20
         }
         
+        // 1) API Call
+        // 2) Success --> list를 변경
+        
+        // 3) list가 변경되면 tableview를 reload
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             print("############")
             let cell = tableView.dequeueReusableCell(withIdentifier: MediaInfoTableViewCell.identifire , for:  indexPath) as! MediaInfoTableViewCell
