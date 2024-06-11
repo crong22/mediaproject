@@ -9,7 +9,7 @@ import Foundation
 
 struct Media : Decodable {
     let page : Int
-    let results : [media]
+    var results : [media]
 }
 
 struct media : Decodable {

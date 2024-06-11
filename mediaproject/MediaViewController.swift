@@ -17,9 +17,10 @@ class MediaViewController: UIViewController {
     
     let movieButton = UIButton()
     let findButton = UIButton()
-    
-    var list : Media?
-    var count = 0
+    var page = 1
+    var list = Media(page: 1, results: [])
+    var isEnd = false
+
     override func viewDidLoad() {
         super.viewDidLoad()
         //
@@ -28,7 +29,7 @@ class MediaViewController: UIViewController {
         configureUI()
         configureTableView()
         
-        
+        callRequest()
         //
         tableView.rowHeight = 400
         //
@@ -98,25 +99,32 @@ class MediaViewController: UIViewController {
         
     }
     
-//    func callRequest() {
-//        print(#function)
-//        
-//        let url = "https://api.themoviedb.org/3/trending/movie/day?api_key=a226da2d6cce383d3a9b41e09dff58ed&language=ko-KR"
-//        print(url)
-//        // 1. struct오류가 아닌데 왜 struct오류로 뜨는지 (query 값을 안넣었을 때 ) = > 성공에대한 struct이므로
-//        // 2. succes가 실행 ? fail실행 ?
-//        // 3. succes랑 fail의 구분 > 서버 상태값 (400, 200등) (상태코드기준!)
-//        // >>> Statyscide (200~300 succes / struct 잘 담겨있는가)
-//        AF.request(url).responseDecodable(of: Media.self) { response in
-//            switch response.result {
-//            case .success(let value):
-//                print("SUCCESS")
-//                
-//            case .failure(let error):
-//                print(error)
-//            }
-//        }
-//    }
+    func callRequest() {
+        print(#function)
+        
+        let url = "https://api.themoviedb.org/3/trending/movie/day?api_key=\(APIKey.tmdbKey)&language=ko-KR"
+        print(url)
+        // 1. struct오류가 아닌데 왜 struct오류로 뜨는지 (query 값을 안넣었을 때 ) = > 성공에대한 struct이므로
+        // 2. succes가 실행 ? fail실행 ?
+        // 3. succes랑 fail의 구분 > 서버 상태값 (400, 200등) (상태코드기준!)
+        // >>> Statyscide (200~300 succes / struct 잘 담겨있는가)
+        AF.request(url).responseDecodable(of: Media.self) { response in
+            switch response.result {
+            case .success(let value):
+                print("SUCCESS")
+                if self.list.page == 1 {
+                    self.list = value
+                    print("리스트만듬")
+                    print(self.list)
+                }else {
+                    self.list.results.append(contentsOf: value.results)
+                }
+                self.tableView.reloadData()
+            case .failure(let error):
+                print(error)
+            }
+        }
+    }
 }
 
     extension MediaViewController : UITableViewDelegate, UITableViewDataSource {
@@ -132,33 +140,11 @@ class MediaViewController: UIViewController {
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
             print("############")
             let cell = tableView.dequeueReusableCell(withIdentifier: MediaInfoTableViewCell.identifire , for:  indexPath) as! MediaInfoTableViewCell
-                
-            let url = "https://api.themoviedb.org/3/trending/movie/day?api_key=\(APIKey.tmdbKey)&language=ko-KR"
-                print(url)
-                // 1. struct오류가 아닌데 왜 struct오류로 뜨는지 (query 값을 안넣었을 때 ) = > 성공에대한 struct이므로
-                // 2. succes가 실행 ? fail실행 ?
-                // 3. succes랑 fail의 구분 > 서버 상태값 (400, 200등) (상태코드기준!)
-                // >>> Statyscide (200~300 succes / struct 잘 담겨있는가)
-            AF.request(url).responseDecodable(of: Media.self) { response in
-                switch response.result {
-                case .success(let value):
-                    print("SUCCESS")
-                    cell.movieDateLabel.text = value.results[indexPath.row].release_date
-                    cell.rateLabel.text = "\(value.results[indexPath.row].vote_average)"
-                    cell.titleLabel.text = value.results[indexPath.row].title
-                    cell.storyLabel.text = value.results[indexPath.row].overview
-                    let imageURL = URL(string: "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+value.results[indexPath.row].poster_path)
-                    cell.movieImage.kf.setImage(with: imageURL)
-                    
-                    print(value.results.count)
-                    print(self.count)
-                case .failure(let error):
-                    print(error)
-                    }
-                }
-
+            //let data = list.results[indexPath.row]
+            //print("waojfaopjfpoafjpoajfpojaofjapofjoawjpfajwfajfpjjfpoajwpfaj\(list)")
+//            let imageURL = URL(string: "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data?.poster_path)
+//            cell.movieImage.kf.setImage(with: imageURL)
             return cell
-            
         }
     }
     
