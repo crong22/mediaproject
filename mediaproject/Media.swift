@@ -21,3 +21,6 @@ struct media : Decodable {
 }
 
 
+enum imageFontSize {
+    static let mainImage = 25
+}
