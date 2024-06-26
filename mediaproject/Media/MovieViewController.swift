@@ -49,26 +49,37 @@ class MovieViewController : UIViewController {
 
         let movieid = UserDefaults.standard.integer(forKey: "movieId")
         
-        DispatchQueue.global().async {
+        let tmdbGroup = DispatchGroup()
+        
+        tmdbGroup.enter() // +1
+        DispatchQueue.global().async(group : tmdbGroup) {
             self.callRequestMovie(id: movieid)
             DispatchQueue.main.async {
-                self.tableView.reloadData()
             }
+            tmdbGroup.leave() // -1
         }
         
-        DispatchQueue.global().async {
+        tmdbGroup.enter()
+        DispatchQueue.global().async(group : tmdbGroup) {
             self.callRequestTV(id: movieid)
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
+            tmdbGroup.leave()
+        }
+        
+        tmdbGroup.notify(queue: .main) {
+            print("끝끝끝끝끝")
+            self.tableView.reloadData()
         }
         
 //        DispatchQueue.global().async {
-//            self.callRequest()
+//            self.callRequest(id: movieid)
 //            DispatchQueue.main.async {
 //                self.tableView.reloadData()
 //            }
 //        }
+        
     }
     
     @objc func backButtonClicked() {
@@ -132,21 +143,21 @@ class MovieViewController : UIViewController {
             }
     }
     
-//    func callRequest() {
-//        let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
-//    
-//        let url = "https://api.themoviedb.org/3/movie/974635/images"
-//        AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
-//            switch response.result {
-//            case .success(let value):
-//                print("SUCCESS")
-//                self.imageList[2] = value.results
-//                print(self.imageList[2])
-//            case .failure(let error):
-//                print(error)
-//                }
-//            }
-//    }
+    func callRequest(id :Int) {
+        let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
+    
+        let url = "https://api.themoviedb.org/3/movie/\(id)/images"
+        AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
+            switch response.result {
+            case .success(let value):
+                print("SUCCESS")
+                self.imageList[2] = value.results
+                print(self.imageList[2])
+            case .failure(let error):
+                print(error)
+                }
+            }
+    }
     
 }
 
