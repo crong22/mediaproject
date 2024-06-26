@@ -63,7 +63,6 @@ class MovieViewController : UIViewController {
         DispatchQueue.global().async(group : tmdbGroup) {
             self.callRequestTV(id: movieid)
             DispatchQueue.main.async {
-                self.tableView.reloadData()
             }
             tmdbGroup.leave()
         }
