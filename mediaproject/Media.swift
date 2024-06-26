@@ -18,9 +18,12 @@ struct media : Decodable {
     let poster_path : String
     let vote_average : Double
     let release_date : String
+    let id : Int
 }
 
 
 enum imageFontSize {
     static let mainImage = 25
 }
+
+

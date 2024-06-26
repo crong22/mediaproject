@@ -130,6 +130,15 @@ class MediaViewController: UIViewController {
             cell.storyLabel.text = data.overview
             return cell
         }
+        
+        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+            print("셀클릭")
+            let cell = tableView.dequeueReusableCell(withIdentifier: MediaInfoTableViewCell.identifire , for:  indexPath) as! MediaInfoTableViewCell
+            let data = list.results[indexPath.row]
+            UserDefaults.standard.setValue(data.title, forKey: "movieTitle")
+            UserDefaults.standard.setValue(data.id, forKey: "movieId")
+            navigationController?.pushViewController(MovieViewController(), animated: true)
+        }
     }
     
 
