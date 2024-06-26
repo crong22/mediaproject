@@ -27,3 +27,18 @@ enum imageFontSize {
 }
 
 
+struct Movie : Decodable {
+    var results : [movie]
+}
+
+struct movie : Decodable {
+    let poster_path : String
+}
+
+struct MoviePoster : Decodable {
+    var posters : [movieposter]
+}
+
+struct movieposter : Decodable {
+    let file_path : String
+}

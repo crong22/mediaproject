@@ -10,25 +10,15 @@ import SnapKit
 import Alamofire
 import Kingfisher
 
-struct Movie : Decodable {
-    let page : Int
-    let results : [movie]
-    let total_pages : Int
-    let total_results : Int
-}
-
-struct movie : Decodable {
-    let poster_path : String
-    let id : Int
-}
 
 class MovieViewController : UIViewController {
     let titleLabel = UILabel()
     let subtitleLabel = UILabel()
     let tableView = UITableView()
     
-    var imageList : [[movie]] = [[ movie(poster_path: "", id: 0)], [ movie(poster_path: "", id: 0)], [ movie(poster_path: "", id: 0 )]]
+    var imageList : [[movie]] = [[ movie(poster_path: "")], [ movie(poster_path: "")], [ movie(poster_path: "")]]
     
+    var poster : [[movieposter]] = [[movieposter(file_path: "")],[ movieposter(file_path: "")], [movieposter(file_path: "")]]
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -43,41 +33,71 @@ class MovieViewController : UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-        tableView.rowHeight = 200
+        if tableView.tag == 0 || tableView.tag == 1{
+            print("tag 0 , 1")
+            tableView.rowHeight = 200
+        }else {
+            tableView.rowHeight = 400
+        }
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.id)
         
 
         let movieid = UserDefaults.standard.integer(forKey: "movieId")
+        print("movieid \(movieid)")
+//        let tmdbGroup = DispatchGroup()
         
-        let tmdbGroup = DispatchGroup()
-        
-        tmdbGroup.enter() // +1
-        DispatchQueue.global().async(group : tmdbGroup) {
-            self.callRequestMovie(id: movieid)
-            DispatchQueue.main.async {
+//        tmdbGroup.enter() // +1
+        MovieAPI.shared.callRequest(api: .callRequestMovie(id: movieid)) { movie, error in
+            if let error = error {
+                print(error)
+            }else {
+                guard let movie = movie else { return }
+                self.imageList[0] = movie
             }
-            tmdbGroup.leave() // -1
-        }
-        
-        tmdbGroup.enter()
-        DispatchQueue.global().async(group : tmdbGroup) {
-            self.callRequestTV(id: movieid)
-            DispatchQueue.main.async {
-            }
-            tmdbGroup.leave()
-        }
-        
-        tmdbGroup.notify(queue: .main) {
-            print("끝끝끝끝끝")
             self.tableView.reloadData()
         }
         
+        MovieAPI.shared.callRequest(api: .callRequestTV(id: movieid)) { movie, error in
+            if let error = error {
+                print(error)
+            }else {
+                guard let movie = movie else { return }
+                self.imageList[1] = movie
+            }
+            self.tableView.reloadData()
+        }
+        
+//        DispatchQueue.global().async(group : tmdbGroup) {
+//            self.callRequestMovie(id: movieid)
+//            DispatchQueue.main.async {
+//            }
+////            tmdbGroup.leave() // -1
+//            self.tableView.reloadData()
+//        }
+        
+//        tmdbGroup.enter()
+//        DispatchQueue.global().async(group : tmdbGroup) {
+//            self.callRequestTV(id: movieid)
+//            DispatchQueue.main.async {
+//            }
+//            tmdbGroup.leave()
+//        }
+//        
+//        tmdbGroup.enter()
 //        DispatchQueue.global().async {
 //            self.callRequest(id: movieid)
 //            DispatchQueue.main.async {
-//                self.tableView.reloadData()
 //            }
+//            tmdbGroup.leave()
 //        }
+//        
+//        
+//        tmdbGroup.notify(queue: .main) {
+//            print("끝끝끝끝끝")
+//            self.tableView.reloadData()
+//        }
+        
+
         
     }
     
@@ -117,10 +137,8 @@ class MovieViewController : UIViewController {
         AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
             switch response.result {
             case .success(let value):
-                print("SUCCESS")
+//                print("SUCCESS")
                 self.imageList[0] = value.results
-                print("2424242424",self.imageList[0][1].id)
-                print(self.imageList[0])
             case .failure(let error):
                 print(error)
                 }
@@ -135,7 +153,7 @@ class MovieViewController : UIViewController {
             case .success(let value):
                 //print("SUCCESS")
                 self.imageList[1] = value.results
-                //print(self.imageList[1])
+                print("imageList[1] \(self.imageList[1])")
             case .failure(let error):
                 print(error)
                 }
@@ -146,12 +164,12 @@ class MovieViewController : UIViewController {
         let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
     
         let url = "https://api.themoviedb.org/3/movie/\(id)/images"
-        AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
+        AF.request(url, headers: header).responseDecodable(of: MoviePoster.self) { response in
             switch response.result {
             case .success(let value):
                 print("SUCCESS")
-                self.imageList[2] = value.results
-                print(self.imageList[2])
+                self.poster[2] = value.posters
+                print("########@@@@@@@@@@@@@@@@@@@@@@@@################",self.poster[2])
             case .failure(let error):
                 print(error)
                 }
@@ -162,7 +180,6 @@ class MovieViewController : UIViewController {
 
 extension MovieViewController : UITableViewDelegate , UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        print(#function,imageList.count)
         return imageList.count
     }
     
@@ -189,15 +206,26 @@ extension MovieViewController : UITableViewDelegate , UITableViewDataSource {
 }
 extension MovieViewController : UICollectionViewDelegate , UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return imageList[collectionView.tag].count
+        print("numberOfItemsInSection \(collectionView.tag)")
+            return imageList[collectionView.tag].count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MovieCollectionViewCell.id , for: indexPath) as! MovieCollectionViewCell
         let data = imageList[collectionView.tag][indexPath.row]
-        print("================== \(data)")
-        let url = URL(string: "https://image.tmdb.org/t/p/w500\(data.poster_path)")
-        cell.posterImageView.kf.setImage(with: url)
+//        let posterimage = poster[2][indexPath.row]
+        
+        if collectionView.tag == 0{
+            let url = URL(string: "https://image.tmdb.org/t/p/w500\(data.poster_path)")
+            cell.posterImageView.kf.setImage(with: url)
+        }else if collectionView.tag == 1 {
+            let url = URL(string: "https://image.tmdb.org/t/p/w500\(data.poster_path)")
+            cell.posterImageView.kf.setImage(with: url)
+        }else if collectionView.tag == 2 {
+            print("22222222")
+//            let url = URL(string: "https://image.tmdb.org/t/p/w500\(posterimage.file_path)")
+//            cell.posterImageView.kf.setImage(with: url)
+        }
 
         return cell
     }
