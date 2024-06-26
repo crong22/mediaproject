@@ -34,7 +34,7 @@ class MovieViewController : UIViewController {
         tableView.dataSource = self
         tableView.delegate = self
         if tableView.tag == 0 || tableView.tag == 1{
-            print("tag 0 , 1")
+            print("tag 0 , 1 \(tableView.tag)")
             tableView.rowHeight = 200
         }else {
             tableView.rowHeight = 400
@@ -131,34 +131,6 @@ class MovieViewController : UIViewController {
         tableView.backgroundColor  = .black
     }
     
-    func callRequestMovie(id : Int) {
-        let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
-        let url = "https://api.themoviedb.org/3/movie/\(id)/similar"
-        AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
-            switch response.result {
-            case .success(let value):
-//                print("SUCCESS")
-                self.imageList[0] = value.results
-            case .failure(let error):
-                print(error)
-                }
-            }
-    }
-    
-    func callRequestTV(id: Int) {
-        let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
-        let url = "https://api.themoviedb.org/3/movie/\(id)/recommendations"
-        AF.request(url, headers: header).responseDecodable(of: Movie.self) { response in
-            switch response.result {
-            case .success(let value):
-                //print("SUCCESS")
-                self.imageList[1] = value.results
-                print("imageList[1] \(self.imageList[1])")
-            case .failure(let error):
-                print(error)
-                }
-            }
-    }
     
     func callRequest(id :Int) {
         let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
