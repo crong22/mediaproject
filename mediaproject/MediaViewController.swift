@@ -87,7 +87,6 @@ class MediaViewController: UIViewController {
         print(#function)
         
         let url = "https://api.themoviedb.org/3/trending/movie/day?api_key=\(APIKey.tmdbKey)&language=ko-KR"
-        print(url)
 
         AF.request(url).responseDecodable(of: Media.self) { response in
             switch response.result {
@@ -118,7 +117,6 @@ class MediaViewController: UIViewController {
         // 2) Success --> list를 변경
         // 3) list가 변경되면 tableview를 reload
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            print("############")
             let cell = tableView.dequeueReusableCell(withIdentifier: MediaInfoTableViewCell.identifire , for:  indexPath) as! MediaInfoTableViewCell
             let data = list.results[indexPath.row]
             let imageURL = URL(string: "https://image.tmdb.org/t/p/w600_and_h900_bestv2"+data.poster_path)

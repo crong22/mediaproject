@@ -33,69 +33,46 @@ class MovieViewController : UIViewController {
         
         tableView.dataSource = self
         tableView.delegate = self
-        if tableView.tag == 0 || tableView.tag == 1{
-            print("tag 0 , 1 \(tableView.tag)")
-            tableView.rowHeight = 200
-        }else {
-            tableView.rowHeight = 400
-        }
+        tableView.rowHeight = 200
         tableView.register(MovieTableViewCell.self, forCellReuseIdentifier: MovieTableViewCell.id)
         
 
         let movieid = UserDefaults.standard.integer(forKey: "movieId")
         print("movieid \(movieid)")
-//        let tmdbGroup = DispatchGroup()
         
-//        tmdbGroup.enter() // +1
-        MovieAPI.shared.callRequest(api: .callRequestMovie(id: movieid)) { movie, error in
-            if let error = error {
-                print(error)
-            }else {
-                guard let movie = movie else { return }
-                self.imageList[0] = movie
+        // DispatchGroup 생성
+        let MovieGroup = DispatchGroup()
+        
+        MovieGroup.enter() // +1
+        DispatchQueue.global().async {
+            MovieAPI.shared.callRequest(api: .callRequestMovie(id: movieid)) { movie, error in
+                if let error = error {
+                    print(error)
+                }else {
+                    guard let movie = movie else { return }
+                    self.imageList[0] = movie
+                }
             }
-            self.tableView.reloadData()
+            MovieGroup.leave() // -1
         }
         
-        MovieAPI.shared.callRequest(api: .callRequestTV(id: movieid)) { movie, error in
-            if let error = error {
-                print(error)
-            }else {
-                guard let movie = movie else { return }
-                self.imageList[1] = movie
+        MovieGroup.enter() // +1
+        DispatchQueue.global().async {
+            MovieAPI.shared.callRequest(api: .callRequestTV(id: movieid)) { movie, error in
+                if let error = error {
+                    print(error)
+                }else {
+                    guard let movie = movie else { return }
+                    self.imageList[1] = movie
+                }
             }
+            MovieGroup.leave() // -1
+        }
+
+        MovieGroup.notify(queue: .main) {
+            print("끝끝끝끝끝")
             self.tableView.reloadData()
         }
-        
-//        DispatchQueue.global().async(group : tmdbGroup) {
-//            self.callRequestMovie(id: movieid)
-//            DispatchQueue.main.async {
-//            }
-////            tmdbGroup.leave() // -1
-//            self.tableView.reloadData()
-//        }
-        
-//        tmdbGroup.enter()
-//        DispatchQueue.global().async(group : tmdbGroup) {
-//            self.callRequestTV(id: movieid)
-//            DispatchQueue.main.async {
-//            }
-//            tmdbGroup.leave()
-//        }
-//        
-//        tmdbGroup.enter()
-//        DispatchQueue.global().async {
-//            self.callRequest(id: movieid)
-//            DispatchQueue.main.async {
-//            }
-//            tmdbGroup.leave()
-//        }
-//        
-//        
-//        tmdbGroup.notify(queue: .main) {
-//            print("끝끝끝끝끝")
-//            self.tableView.reloadData()
-//        }
         
 
         
@@ -131,7 +108,6 @@ class MovieViewController : UIViewController {
         tableView.backgroundColor  = .black
     }
     
-    
     func callRequest(id :Int) {
         let header : HTTPHeaders = ["Authorization" : APIKey.tmdbToken]
     
@@ -141,7 +117,7 @@ class MovieViewController : UIViewController {
             case .success(let value):
                 print("SUCCESS")
                 self.poster[2] = value.posters
-                print("########@@@@@@@@@@@@@@@@@@@@@@@@################",self.poster[2])
+                print("POSTER REQUEST VALUE : ",self.poster[2])
             case .failure(let error):
                 print(error)
                 }
@@ -155,9 +131,19 @@ extension MovieViewController : UITableViewDelegate , UITableViewDataSource {
         return imageList.count
     }
     
+//    func tableView(_ tableView: UITableView, estimatedHeightForRowAt indexPath: IndexPath) -> CGFloat {
+//        print("estimatedHeightForRowAt",indexPath.row)
+//        if indexPath.row == 0 || indexPath.row == 1 {
+//            return 200
+//        }else {
+//            return 400
+//        }
+//    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         print(#function)
         let cell = tableView.dequeueReusableCell(withIdentifier:MovieTableViewCell.id , for: indexPath) as! MovieTableViewCell
+        
         cell.collectionView.dataSource = self
         cell.collectionView.delegate = self
         cell.collectionView.tag = indexPath.row
