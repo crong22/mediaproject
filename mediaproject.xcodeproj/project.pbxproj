@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D85B6D942C37E407004C90F3 /* NasaViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D85B6D932C37E407004C90F3 /* NasaViewController.swift */; };
 		D88B168E2C17318400E34DC5 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88B168D2C17318400E34DC5 /* AppDelegate.swift */; };
 		D88B16902C17318400E34DC5 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88B168F2C17318400E34DC5 /* SceneDelegate.swift */; };
 		D88B16922C17318400E34DC5 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88B16912C17318400E34DC5 /* ViewController.swift */; };
@@ -34,6 +35,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D85B6D932C37E407004C90F3 /* NasaViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NasaViewController.swift; sourceTree = "<group>"; };
 		D88B168A2C17318400E34DC5 /* mediaproject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = mediaproject.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D88B168D2C17318400E34DC5 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		D88B168F2C17318400E34DC5 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -73,6 +75,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		D85B6D922C37E3FB004C90F3 /* Nasa */ = {
+			isa = PBXGroup;
+			children = (
+				D85B6D932C37E407004C90F3 /* NasaViewController.swift */,
+			);
+			path = Nasa;
+			sourceTree = "<group>";
+		};
 		D88B16812C17318400E34DC5 = {
 			isa = PBXGroup;
 			children = (
@@ -93,6 +103,7 @@
 		D88B168C2C17318400E34DC5 /* mediaproject */ = {
 			isa = PBXGroup;
 			children = (
+				D85B6D922C37E3FB004C90F3 /* Nasa */,
 				D8E25F702C305BBB0052F40A /* Detail */,
 				D8E25F5A2C2B2DB20052F40A /* Media */,
 				D88B16BC2C1836FE00E34DC5 /* MovieFind */,
@@ -239,6 +250,7 @@
 				D88B16902C17318400E34DC5 /* SceneDelegate.swift in Sources */,
 				D88B16A22C17333B00E34DC5 /* MediaViewController.swift in Sources */,
 				D88B16A82C17339200E34DC5 /* APIKey.swift in Sources */,
+				D85B6D942C37E407004C90F3 /* NasaViewController.swift in Sources */,
 				D8E25F692C2C1C9E0052F40A /* MovieRequest.swift in Sources */,
 				D88B16A42C17334500E34DC5 /* Media.swift in Sources */,
 			);
