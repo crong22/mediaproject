@@ -34,6 +34,16 @@ final class NasaViewController : UIViewController {
     private let nasaButton = UIButton()
     
     var session: URLSession!
+    
+    var total : Double = 0
+    var buffer : Data? {
+        didSet {
+            var result = Double(buffer?.count ?? 0) / total
+            print(result)
+            buffuerLabel.text = "\(lroundl(result * 100))%"
+        }
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -45,6 +55,9 @@ final class NasaViewController : UIViewController {
     }
     
     @objc func nasaButtonClicekd() {
+        print(#function)
+        
+        buffer = Data()
         
         callRequest()
     }
@@ -58,6 +71,10 @@ final class NasaViewController : UIViewController {
     func configureLayout() {
         view.backgroundColor = .white
         nasaButton.backgroundColor = .blue
+        nasaButton.setTitle("클 릭", for: .normal)
+        nasaButton.titleLabel?.textAlignment = .center
+        
+        buffuerLabel.textAlignment = .center
     }
     
     func configureView() {
@@ -66,12 +83,14 @@ final class NasaViewController : UIViewController {
             make.height.equalTo(40)
         }
         
+        buffuerLabel.backgroundColor = .brown
         buffuerLabel.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
             make.top.equalTo(nasaButton.snp.bottom).offset(10)
             make.height.equalTo(30)
         }
         
+        imageView.backgroundColor = .lightGray
         imageView.snp.makeConstraints { make in
             make.horizontalEdges.equalTo(view.safeAreaLayoutGuide).inset(20)
             make.top.equalTo(buffuerLabel.snp.bottom).offset(10)
@@ -80,6 +99,7 @@ final class NasaViewController : UIViewController {
     }
     
     func callRequest() {
+        print(#function)
         let request = URLRequest(url: Nasa.photo)
         
         session = URLSession(configuration: .default, delegate: self, delegateQueue: .main)
@@ -88,5 +108,37 @@ final class NasaViewController : UIViewController {
 }
 
 extension NasaViewController : URLSessionDataDelegate {
+
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive response: URLResponse) async -> URLSession.ResponseDisposition {
+        print(#function, response)
+        if let response = response as? HTTPURLResponse,(200...299).contains(response.statusCode) {
+
+            let contentLength = response.value(forHTTPHeaderField: "Content-Length")!
+            total = Double(contentLength)!
+            return .allow
+        }else {
+            return .cancel
+        }
+    }
     
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        buffer?.append(data)
+    }
+
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: (any Error)?) {
+        print(#function, error)
+        
+        if let error = error {
+            buffuerLabel.text = "문제가 발생했습니다."
+        }else {
+            print("성공")
+            guard let buffer = buffer else {
+                print("buffer nil")
+                return
+            }
+            
+            let image = UIImage(data: buffer)
+            imageView.image = image
+        }
+    }
 }
